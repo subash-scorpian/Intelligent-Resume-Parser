@@ -3,6 +3,7 @@ from PyPDF2 import PdfReader
 import easyocr
 from dateutil import parser
 import re
+import io
 
 # Date normalization function
 def normalize_dates(date_str):
@@ -13,25 +14,27 @@ def normalize_dates(date_str):
         return date_str
 
 # OCR text extraction function
-def extract_text_from_image(pdf_path):
+def extract_text_from_image(pdf_file):
     reader = easyocr.Reader(['en'])  # Initialize EasyOCR reader for English
-    result = reader.readtext(pdf_path, detail=0)  # Extract text from the image
+    result = reader.readtext(pdf_file, detail=0)  # Extract text from the image
     return " ".join(result)
 
-# Check if the PDF contains image-based content (for OCR support)
-def is_image_based(pdf_path):
-    return pdf_path.endswith('.png') or pdf_path.endswith('.jpg') or pdf_path.endswith('.jpeg')
-
 # Function to parse the PDF (either text-based or image-based)
-def parse_pdf(pdf_path):
-    reader = PdfReader(pdf_path)
-    text = ""
+def parse_pdf(uploaded_file):
+    # Read PDF content into memory
+    pdf_content = uploaded_file.read()
 
-    if is_image_based(pdf_path):  # Image-based PDF, use OCR
-        text = extract_text_from_image(pdf_path)
-    else:  # Text-based PDF, extract directly
-        for page in reader.pages:
-            text += page.extract_text()
+    # Check if the content is image-based by trying to extract text
+    reader = PdfReader(io.BytesIO(pdf_content))  # Use in-memory bytes
+
+    text = ""
+    for page in reader.pages:
+        page_text = page.extract_text()
+        if page_text:  # If text is found in the page, it's a text-based PDF
+            text += page_text
+        else:  # Otherwise, it's likely an image-based PDF, use OCR
+            text = extract_text_from_image(pdf_content)
+            break  # Exit after processing the first image-based page
     
     return text
 
