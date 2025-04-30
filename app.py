@@ -15,14 +15,14 @@ SKILLS_LIST = [
 def normalize_dates(date_str):
     try:
         parsed_date = parser.parse(date_str)
-        return parsed_date.strftime('%m/%Y')  #
+        return parsed_date.strftime('%m/%Y')  
     except Exception:
         return date_str
 
 
 def extract_text_from_image(pdf_file):
     reader = easyocr.Reader(['en']) 
-    result = reader.readtext(pdf_file, detail=0)  # Extract text from the image
+    result = reader.readtext(pdf_file, detail=0)  
     return " ".join(result)
 
 
