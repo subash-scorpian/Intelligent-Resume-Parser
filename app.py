@@ -5,7 +5,7 @@ from dateutil import parser
 import re
 import io
 
-# List of common skills to extract from the text
+
 SKILLS_LIST = [
     "Python", "SQL", "R", "Excel", "Power BI", "Tableau", 
     "Machine Learning", "Data Analysis", "Java", "Deep Learning", 
@@ -15,13 +15,13 @@ SKILLS_LIST = [
 def normalize_dates(date_str):
     try:
         parsed_date = parser.parse(date_str)
-        return parsed_date.strftime('%m/%Y')  # Standardized format (e.g., '01/2020')
+        return parsed_date.strftime('%m/%Y')  #
     except Exception:
         return date_str
 
 
 def extract_text_from_image(pdf_file):
-    reader = easyocr.Reader(['en'])  # Initialize EasyOCR reader for English
+    reader = easyocr.Reader(['en']) 
     result = reader.readtext(pdf_file, detail=0)  # Extract text from the image
     return " ".join(result)
 
@@ -30,16 +30,16 @@ def parse_pdf(uploaded_file):
   
     pdf_content = uploaded_file.read()
 
-    reader = PdfReader(io.BytesIO(pdf_content))  # Use in-memory bytes
+    reader = PdfReader(io.BytesIO(pdf_content))  
     text = ""
     
     for page in reader.pages:
         page_text = page.extract_text()
-        if page_text:  # If text is found, it's a text-based PDF
+        if page_text:  
             text += page_text
-        else:  # If no text found, use OCR for image-based PDF
+        else:  
             text = extract_text_from_image(pdf_content)
-            break  # Exit after processing the first image-based page
+            break  
     
     return text
 
